@@ -20,10 +20,11 @@ FROM ubuntu:16.04
 MAINTAINER Steve Cote <sdcote@gmail.com>
 
 # Install Ansible
-RUN apt-get update && apt-get install -y unzip software-properties-common && apt-add-repository ppa:ansible/ansible && apt-get update -y && apt-get install ansible -y && ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
+RUN apt-get update && apt-get install -y unzip git software-properties-common && apt-add-repository ppa:ansible/ansible && apt-get update -y && apt-get install ansible -y && ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/id_rsa
 
 # Install the SSH daemon so we can log into this container and run our playbooks
 RUN apt-get install -y openssh-server && mkdir /var/run/sshd && echo 'root:coyote' | chpasswd && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
