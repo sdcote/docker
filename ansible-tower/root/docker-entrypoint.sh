@@ -6,6 +6,10 @@ NGINX_CONF=/etc/nginx/nginx.conf
 
 trap "kill -15 -1 && echo all proc killed" TERM KILL INT
 
+# generate host keys if not present
+ssh-keygen -A
+
+# Run either ansible tower and SSH daemon or whatever was passed to the script
 if [ "$1" = "ansible-tower" ]; then
 	if [[ $SERVER_NAME ]]; then
 		echo "add $SERVER_NAME to server_name"
@@ -28,7 +32,9 @@ if [ "$1" = "ansible-tower" ]; then
 	fi
 	
 	ansible-tower-service start
-	sleep inf & wait
+
+  # Run SSHD: do not detach (-D), debug logs to stderr (-e)
+  exec /usr/sbin/sshd -D -e
 else
 	exec "$@"
 fi

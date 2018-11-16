@@ -1,14 +1,23 @@
-#FROM ubuntu:trusty
-FROM ubuntu:18.04
-LABEL maintainer sdcote@gmail.com
+FROM ubuntu:14.04.5
+LABEL maintainer "Steve Cote - https://github.com/sdcote"
 
 WORKDIR /opt
 
 # Check https://releases.ansible.com/ansible-tower/setup/ for the version to retrieve 
 ENV ANSIBLE_TOWER_VER 3.2.8
 ENV PG_DATA /var/lib/postgresql/9.6/main
+ENV CERTS /certs
 ENV AWX_PROJECTS /var/lib/awx/projects
 
+# SSHD setup
+RUN apt-get update \
+  && apt-get install -y openssh-server iproute2 \
+  && mkdir /var/run/sshd \
+  && echo 'root:coyote' | chpasswd \
+  && sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+  && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+# Python setup
 RUN apt-get update \
   && apt-get install -y software-properties-common \
   && apt-add-repository -y ppa:fkrull/deadsnakes-python2.7 \
@@ -19,7 +28,7 @@ RUN apt-get update \
 	&& dpkg-reconfigure locales \
 	&& apt-get install -y libpython2.7 apt-transport-https ca-certificates
 
-# create /var/log/tower
+# Create /var/log/tower
 RUN mkdir -p /var/log/tower
 
 # Download & extract Tower tarball
@@ -33,12 +42,12 @@ ADD inventory inventory
 # Tower setup - this calls an Ansible playbook to configure itself
 RUN ./setup.sh
 
-# Docker entrypoint script
-ADD docker-entrypoint.sh /docker-entrypoint.sh
+# Docker entrypoint script and any other files
+COPY root /
 RUN chmod +x /docker-entrypoint.sh
 
-# volumes and ports
-VOLUME ["${PG_DATA}", "${AWX_PROJECTS}", "/certs",]
-EXPOSE 443
+# Volumes and ports
+VOLUME ["${PG_DATA}", "${AWX_PROJECTS}", "${CERTS}",]
+EXPOSE 22 443
 
 CMD ["/docker-entrypoint.sh", "ansible-tower"]

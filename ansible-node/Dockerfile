@@ -5,7 +5,7 @@
 # 
 # docker run -d -p :22 --name nodea --hostname nodea node
 #
-# or if tou want bot the SSH and HTTP ports published:
+# or if you want both the SSH and HTTP ports published:
 #
 # docker run -d -P --name nodea --hostname nodea node
 #
