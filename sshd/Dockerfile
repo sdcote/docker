@@ -10,10 +10,12 @@
 #
 FROM ubuntu:16.04
 
-RUN apt-get update && apt-get install -y openssh-server && apt-get install -y iproute2 && mkdir /var/run/sshd && echo 'root:coyote' | chpasswd && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
-# SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+RUN apt-get update \
+  && apt-get install -y openssh-server iproute2 \
+  && mkdir /var/run/sshd \
+  && echo 'root:coyote' | chpasswd \
+  && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+  && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
 # This is how we can put stuff in our environment variables
 #ENV NOTVISIBLE "in users profile"
