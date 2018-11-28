@@ -2,19 +2,18 @@ FROM ubuntu:xenial
 LABEL maintainer "Steve Cote - https://github.com/sdcote"
 
 # Check https://releases.ansible.com/ansible-tower/setup/ for the version to retrieve 
-ENV ANSIBLE_TOWER_VER 3.3.1
+ENV ANSIBLE_TOWER_VER 3.3.1-1
 
 ENV PG_DATA /var/lib/postgresql/9.6/main
 ENV CERTS /certs
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
-ENV PASSWD coyote
 
 # SSHD setup
 RUN apt-get update \
   && apt-get install -y openssh-server iproute2 \
   && mkdir /var/run/sshd \
-  && echo 'root:${PASSWD}' | chpasswd \
+  && echo 'root:coyote' | chpasswd \
   && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config 
 
 # Retrieve Ansible Tower
