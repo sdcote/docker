@@ -2,7 +2,7 @@ FROM ubuntu:xenial
 LABEL maintainer "Steve Cote - https://github.com/sdcote"
 
 # Check https://releases.ansible.com/ansible-tower/setup/ for the version to retrieve 
-ENV ANSIBLE_TOWER_VER 3.3.1-1
+ENV ANSIBLE_TOWER_VER 3.3.0-1
 
 ENV PG_DATA /var/lib/postgresql/9.6/main
 ENV CERTS /certs
