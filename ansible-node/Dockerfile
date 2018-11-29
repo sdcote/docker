@@ -7,16 +7,23 @@
 #
 # docker run -d -P --name nodea --hostname nodea node
 #
+FROM ubuntu:18.04
 
-FROM ubuntu:16.04
-
+# Add the minimal packages for eanle Ansible configuration
 RUN apt-get update \
-  && apt-get install -y openssh-server iproute2 python2.7 python-pip \
+  && apt-get install -y openssh-server iproute2 sudo python2.7 python-pip python3-pip \
   && mkdir /var/run/sshd \
   && echo 'root:coyote' | chpasswd \
-  && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-  && sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd \
-  && apt-get install -y python3-pip
+  && sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# Add a non privileged user with SSH keys that Ansible can use for connections
+RUN useradd -m ansible -s /bin/bash \
+  && mkdir -p /home/ansible/.ssh
+ADD public-key.txt /home/ansible/.ssh/authorized_keys
+RUN chown -R ansible /home/ansible/.ssh \
+  && chmod 600 /home/ansible/.ssh/authorized_keys \
+  && echo "ansible ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/ansible \
+  && chmod 0440 /etc/sudoers.d/ansible
 
 # Expose ssh common ports.
 EXPOSE 22 80 443
