@@ -9,12 +9,12 @@
 #
 FROM ubuntu:18.04
 
-# Add the minimal packages for eanle Ansible configuration
+# Add the minimal packages for an Ansible to connect and manage our configuration
 RUN apt-get update \
   && apt-get install -y openssh-server iproute2 sudo python2.7 python-pip python3-pip \
   && mkdir /var/run/sshd \
   && echo 'root:coyote' | chpasswd \
-  && sed -i 's/#PermitRootLogin yes/PermitRootLogin yes/' /etc/ssh/sshd_config
+  && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # Add a non privileged user with SSH keys that Ansible can use for connections
 RUN useradd -m ansible -s /bin/bash \
