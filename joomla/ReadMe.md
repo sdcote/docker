@@ -40,18 +40,27 @@ If you'd like to use an external database instead of a linked mysql container, s
 $ docker run --name joomla -e JOOMLA_DB_HOST=10.1.2.3:3306 -e JOOMLA_DB_USER=... -e JOOMLA_DB_PASSWORD=... -d joomla
 ```
 
+### Complete External Database Scenario
 As an example, if you ran the following to start a mysql server:
 ```
-$ docker run --name=mysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=coyote -e MYSQL_ROOT_HOST=% mysql/mysql-server:5.7
+$ docker run --restart unless-stopped --name=mysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=coyote -e MYSQL_ROOT_HOST=% mysql/mysql-server:5.7
 ```
 You will have a mysql container running on the local machine listening to port 3306. To find out the IP address allocated to the container, you can type the following:
 ```
 $ docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql 
+172.17.0.2
+$
 ```
+The above shows `172.17.0.2` as the IP address of the MySQL server
 You now know the IP address and port for the database server and since you defined the password, you can now connect to that database with root:coyote to access the MySQL instance. Your Joomla instance can now be called with the following:
 ```
-$ docker run -d --name joomla -P -e JOOMLA_DB_HOST=172.17.0.3:3306 -e JOOMLA_DB_PASSWORD=coyote joomla
+$ docker run -d --name joomla -p :22 -p 80:80 -p 443:443 -e JOOMLA_DB_HOST=172.17.0.2:3306 -e JOOMLA_DB_PASSWORD=coyote joomla
 ```
+The above defines the database host as `172.17.0.3:3306` and will create a "joomla" database using the `root` user (the default) ad a password of `coyote`. The ports are mapped with SSH being mapped to a random port and HTTP being mapped directly.
+
+Once the container is running, you can point your browser to http://localhost and finish the final Joomla! configuration via the web pages. Page 2 contains the database details. On this page you would place the IP address of the mysql container (172.17.0.2 in the above example) the user name of `root` (the default mysql username) and a password of `coyote` as specified on the command line to run the mysql database. The database name is `joomla` which is the default database created by the Joomla container when it was run.
+
+You can also SCP and SSH into the host on whatever port the docker runtime has mapped to the joomla container instance. Typing `docker ps` will give you that information.
 
 ## Running Via Docker Stack or Compose
 Example `stack.yml` for joomla:
