@@ -25,7 +25,7 @@ RUN chown -R ansible /home/ansible/.ssh \
   && echo "ansible ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/ansible \
   && chmod 0440 /etc/sudoers.d/ansible
 
-# Expose ssh common ports.
+# Expose ssh and common ports.
 EXPOSE 22 80 443
 
 # Run SSH daemon
