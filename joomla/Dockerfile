@@ -87,6 +87,7 @@ RUN curl -o joomla.tar.bz2 -SL https://github.com/joomla/joomla-cms/releases/dow
 # Copy init scripts
 COPY entrypoint.sh /entrypoint.sh
 COPY makedb.php /makedb.php
+COPY php.ini /usr/local/etc/php/php.ini
 
 # Expose ssh and common web ports
 EXPOSE 22 80 443
